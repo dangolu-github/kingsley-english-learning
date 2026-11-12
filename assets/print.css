@@ -1,0 +1,166 @@
+/* Compact paper layout; printing changes neither stored answers nor release gates. */
+.cp-print-value { display: none; }
+.cp-measure-lines > li { white-space: nowrap !important; font-size: var(--cp-measure-size, 12px) !important; }
+@media print {
+  @page { size: A4; margin: 8mm 10mm; }
+  html, body { background: #fff !important; color: #111 !important; }
+  body { font-size: 10.2pt !important; line-height: 1.28 !important; }
+  .cp-page { width: auto !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+  .cp-top, .cp-preview, .cp-taskbar, .cp-actions, .cp-submit, .cp-back, .cp-chips,
+  .cp-retry, .cp-drop, .cp-progress, .cp-rec, .cp-filepick, .cp-files, .cp-file,
+  .cp-search, .cp-check, .cp-word .tools, .cp-method, .cp-submission-method,
+  .cp-kicker, .cp-banner, .cp-count, .cp-msg, .cp-audio, .cp-speak-panel,
+  [data-method], [data-paper-upload], [data-no-print], .no-print,
+  button, input[type="file"], audio, video, .cp-print-control { display: none !important; }
+  .cp-page h1 { font-size: 14pt !important; line-height: 1.15 !important; margin: 0 0 4pt !important; }
+  h2, h3, h4, summary, legend, .cp-prompt-line { break-after: avoid; }
+  .cp-page h2, .cp-rich h3 { font-size: 11.5pt !important; margin: 6pt 0 3pt !important; }
+  .cp-rich h4, .cp-sub, .cp-part { font-size: 10.2pt !important; margin: 5pt 0 2pt !important; }
+  p, .cp-rich p, .cp-rich ul, .cp-rich ol { margin: 2pt 0 !important; orphans: 2; widows: 2; }
+  ul, ol { padding-left: 16pt; }
+  a { color: inherit !important; text-decoration: none !important; }
+  details, .cp-q, .cp-block, .cp-fold, .cp-doc, .cp-pages, .cp-section, .cp-rich,
+  .cp-result, .cp-verdict, .cp-mistake, .cp-cards, .cp-notes, .cp-prompt, .cp-memo,
+  .cp-split, .cp-split-pane, .cp-split-text-item, .cp-split-text-body {
+    max-height: none !important; height: auto; overflow: visible !important;
+    border-radius: 0 !important; box-shadow: none !important; background: none !important;
+    break-inside: auto !important;
+  }
+  /* A reading task prints as one column: print.js has already moved each passage back to its own place in
+     the task, so the two panes are plain blocks here and the passage heading is an ordinary heading. */
+  .cp-split, .cp-split-pane, .cp-split-text-item, .cp-split-text-body { display: block !important; padding: 0 !important; border: 0 !important; margin: 0 !important; }
+  .cp-split-text-head { position: static !important; padding: 0 !important; border: 0 !important; background: none !important; font-size: 11.5pt !important; margin: 6pt 0 3pt !important; }
+  .cp-split-text-head small { display: none !important; }
+  .cp-split-pane .cp-rich table { display: table !important; width: 100% !important; }
+  details { border: 0 !important; margin: 3pt 0 !important; padding: 0 !important; }
+  details > summary { display: block !important; list-style: none !important; padding: 2pt 0 !important; font-size: 10.5pt !important; }
+  details > summary::-webkit-details-marker { display: none !important; }
+  details > summary::after { content: none !important; }
+  details > :not(summary) { display: block; }
+  .cp-fold-body, .cp-doc-body, .cp-pages-body { padding: 0 !important; }
+  .cp-section { border-top: .5pt solid #999 !important; margin: 4pt 0 0 !important; padding: 3pt 0 0 !important; }
+  .cp-block, .cp-block.cp-rich, .cp-q, .cp-mistake { margin: 3pt 0 !important; padding: 2pt 0 !important; border: 0 !important; }
+  .cp-q { border: 0 !important; }
+  .cp-q.cp-print-short { break-inside: avoid !important; }
+  .cp-q legend, .cp-q .cp-prompt-line { margin: 0 0 2pt !important; }
+  .cp-n { min-width: 15pt !important; height: auto !important; padding: 0 !important; margin-right: 4pt !important; color: #111 !important; background: none !important; font-size: 9.3pt !important; }
+  .cp-opt { gap: 5pt !important; border: 0 !important; padding: 1pt 0 !important; margin: 1pt 0 !important; background: none !important; break-inside: avoid; }
+  .cp-letter { color: #111 !important; }
+  .cp-gap { display: block !important; }
+  .cp-gap-line { line-height: 1.45 !important; }
+  .cp-print-value { color: #111 !important; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .cp-print-guide { display: block !important; font-size: 8.5pt !important; break-before: avoid; }
+  .cp-print-inline { display: inline !important; min-width: 90pt; border-bottom: .5pt solid #666; padding: 0 3pt; }
+  .cp-print-inline.cp-print-empty { display: inline-block !important; width: 100pt; min-height: 12pt; }
+  .cp-print-answer { display: block !important; margin: 3pt 0 !important; padding: 2pt 0 !important; height: auto !important; max-height: none !important; overflow: visible !important; break-inside: auto !important; }
+  .cp-print-mark { display: inline-block !important; width: 10pt; flex: 0 0 10pt; font: 10pt/1.3 Arial, sans-serif !important; }
+  .cp-print-empty.cp-print-short-space { min-height: 24pt !important; border-bottom: .5pt solid #aaa; }
+  .cp-extra-task .cp-print-empty.cp-print-short-space { min-height: 12pt !important; }
+  .cp-extra-task .cp-q { margin: 1pt 0 !important; padding: .5pt 0 !important; }
+  .cp-extra-task .cp-print-answer { margin: 2pt 0 !important; padding: 1pt 0 !important; }
+  /* A single writing rule beside each short prompt; table borders already supply structure. */
+  .cp-extra-task .cp-q .cp-prompt-line { font-weight: 400 !important; }
+  .cp-print-blank .cp-extra-task .cp-print-short-answer { display: flex !important; align-items: baseline; flex-wrap: wrap; column-gap: 5pt; row-gap: 0; }
+  .cp-print-blank .cp-extra-task .cp-print-short-answer .cp-prompt-line { flex: 0 1 auto; margin: 0 !important; }
+  .cp-print-blank .cp-extra-task .cp-print-short-answer .cp-print-answer { flex: 1 1 100pt; min-width: 85pt; min-height: 12pt !important; margin: 0 !important; padding: 0 !important; }
+  .cp-print-blank .cp-extra-task td .cp-print-short-answer { display: block !important; }
+  .cp-extra-task table { margin: 3pt 0 !important; }
+  .cp-extra-task th, .cp-extra-task td { padding: 2pt 4pt !important; }
+  .cp-extra-task .cp-flow { break-inside: avoid !important; }
+  .cp-extra-task .cp-q legend { font-weight: 400 !important; }
+  .cp-extra-task td .cp-q:last-child .cp-print-empty { border-bottom: 0 !important; }
+
+  .cp-print-empty.cp-print-long-space { min-height: 52pt !important; border-bottom: .5pt solid #aaa; }
+  /* On a blank sheet a writing prompt, its space and its word guide stay on one page. */
+  .cp-print-blank .cp-q:has(.cp-print-long-space), .cp-print-blank .cp-q:has(.cp-print-guide) { break-inside: avoid !important; }
+  /* A task printed above its writing question (the mock articles and emails) stays with it. */
+  .cp-print-blank .cp-block:has(+ .cp-q .cp-print-long-space), .cp-print-blank .cp-block:has(+ .cp-q .cp-print-guide) { break-inside: avoid !important; break-after: avoid !important; }
+  .cp-print-columns { columns: 2; column-gap: 6mm; column-rule: .4pt solid #ddd; }
+  .cp-count, .cp-optional, .cp-or, .cp-note { font-size: 8.5pt !important; margin: 2pt 0 !important; }
+  .cp-count:empty, .cp-msg:empty { display: none !important; }
+  .cp-verdict, .cp-result { border: .5pt solid #aaa !important; margin: 2pt 0 !important; padding: 3pt 4pt !important; font-size: 9.4pt !important; color: #111 !important; }
+  .cp-verdict p { margin: 1.5pt 0 !important; }
+  .cp-verdict .label { font-weight: 700 !important; }
+  .cp-result { border: 0 !important; border-bottom: .5pt solid #aaa !important; padding: 0 0 3pt !important; }
+  .cp-result h2 { display: none !important; }
+  .cp-score { font-size: 11pt !important; margin: 0 !important; }
+  .cp-pre, .cp-notes { white-space: pre-wrap !important; overflow-wrap: anywhere !important; font-size: inherit !important; }
+  .cp-notes, .cp-example, .cp-prompt, .cp-memo { padding: 3pt 6pt !important; margin: 3pt 0 !important; }
+  .cp-example, .cp-prompt { font-size: inherit !important; border: 0 !important; }
+  .cp-lines { padding-left: 25pt !important; margin: 3pt 0 5pt !important; }
+  .cp-lines li { line-height: 1.35 !important; }
+  .cp-lines li.cp-pstart { margin-top: 5pt !important; }
+  /* One paper line = one printed line: the passage shrinks to its widest line (print.js), never below 7pt. */
+  @supports (font-size: 1cqi) {
+    .cp-lines.cp-fit-lines { container-type: inline-size; }
+    .cp-lines.cp-fit-lines > li { white-space: nowrap !important; font-size: max(7pt, min(1em, calc(98cqi / var(--cp-line-em)))) !important; }
+  }
+  table, .cp-table, .cp-wordtable { width: 100% !important; max-width: none !important; border-collapse: collapse !important; font-size: 9pt !important; overflow: visible !important; break-inside: auto !important; }
+  thead, .cp-wordtable thead { display: table-header-group !important; }
+  tbody { display: table-row-group !important; }
+  tr, .cp-wordtable tr { display: table-row !important; break-inside: avoid; }
+  th, td, .cp-table th, .cp-table td, .cp-rich th, .cp-rich td, .cp-wordtable th, .cp-wordtable td { display: table-cell !important; float: none !important; padding: 3pt 4pt !important; border-color: #aaa !important; }
+  /* A column is never narrower than its longest word, so words and numbers stay whole. */
+  th, td { overflow-wrap: break-word !important; word-break: normal !important; }
+  .cp-wordtable .ck { display: none !important; }
+  img, .cp-pages-body img, .cp-figure .cp-pages-body img { max-width: 100% !important; width: auto !important; max-height: 235mm; object-fit: contain; margin: 3pt auto !important; border: 0 !important; break-inside: avoid; }
+  .cp-card, .cp-log a, .cp-word { padding: 4pt 0 !important; margin: 0 !important; border-radius: 0 !important; break-inside: avoid; }
+  .cp-card h3, .cp-log strong, .cp-word .w { font-size: 10.5pt !important; }
+  .cp-meta, .cp-word .pos, .cp-word .ex { font-size: 9pt !important; }
+  .cp-print-blank .cp-verdict, .cp-print-blank .cp-result, .cp-print-blank .cp-banner,
+  .cp-print-blank [data-print-feedback], .cp-print-blank .cp-paper-review,
+  .cp-print-blank .cp-review, .cp-print-blank .cp-count { display: none !important; }
+}
+/* Print-first additions (2026-10-24): print-only lines, mistake-log retry space, paper hand-in receipt. */
+.cp-print-only { display: none; }
+@media print {
+  .cp-print-only { display: block !important; font-size: 9.5pt !important; margin: 0 0 3pt !important; }
+  .cp-print-retry { display: block !important; min-height: 16pt; margin: 2pt 0 0 !important; border-bottom: .5pt solid #888; font-size: 9pt !important; color: #444 !important; }
+  .cp-paper-receipt { display: block !important; margin: 0 0 4pt !important; padding: 0 !important; background: none !important; font-size: 9pt !important; }
+  /* A listening script prints only when the learner opened it (2026-10-25). */
+  details[data-print-if-open]:not([open]) { display: none !important; }
+  /* The hand-in panel never prints; its empty wrapper alone pushed a blank last page onto a full mock (2026-10-24). */
+  [data-handin], .cp-handin, .cp-handin-hint { display: none !important; }
+  .cp-original { margin: 1.5pt 0 !important; }
+  .cp-error-span, .cp-del { color: #555 !important; text-decoration: line-through; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cp-fix-span, .cp-ins { color: #b42318 !important; text-decoration: none; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cp-mistake { break-inside: avoid; border-bottom: .4pt solid #ccc !important; }
+  .cp-mistake dl { margin: 1pt 0 !important; }
+  .cp-words { margin: 0 !important; padding: 0 !important; }
+  .cp-vocab-list { break-inside: auto; }
+  .cp-print-blank .cp-paper-receipt { display: none !important; }
+}
+/* Fewer near-empty last pages (2026-10-24, measured on all 111 local PDFs): two-column short-question tasks and
+   class summaries print a little denser, so a matching task or a summary no longer leaves one or two items alone
+   on a second page. Text stays at 9.7–9.8 pt. */
+@media print {
+  .cp-print-columns .cp-q { margin: 1.5pt 0 !important; padding: 1pt 0 !important; }
+  .cp-print-columns .cp-q legend { margin: 0 0 1pt !important; }
+  .cp-print-columns .cp-inline .cp-opts { gap: 0 6pt !important; }
+  .cp-print-columns .cp-inline .cp-opt { padding: 0 !important; margin: 0 !important; min-width: 0 !important; }
+  .cp-print-columns .cp-rich p { line-height: 1.22 !important; }
+  .cp-print-columns .cp-rich p, .cp-print-columns .cp-rich li { font-size: 9.7pt !important; }
+  .cp-summary { font-size: 9.8pt !important; }
+  .cp-summary table { font-size: 8.8pt !important; }
+  .cp-summary .cp-fold-body p, .cp-summary .cp-fold-body li { margin: 1pt 0 !important; line-height: 1.24 !important; }
+  .cp-summary .cp-sumfold { margin: 2pt 0 !important; }
+  .cp-summary table th, .cp-summary table td { padding: 1.5pt 3pt !important; }
+}
+/* Safari and every iPad/iPhone browser (WebKit) print a column block as a single column and cut a line in two
+   where it meets a page break. There the block keeps the denser type above but prints as one plain column, so
+   each question moves whole to the next page (2026-10-25; Chrome keeps its two columns). WebKit also cuts a
+   grid row at a page break, so the statement lists (A–H), clue questions, word cards and mistake details print
+   as ordinary lines there. */
+@supports (font: -apple-system-body) {
+  @media print {
+    .cp-print-columns { columns: auto !important; column-rule: none !important; }
+    .cp-statements li, .cp-cluebox .cp-clueqs li { display: block !important; padding-left: 2em !important; text-indent: -2em; }
+    .cp-statements li > b:first-child, .cp-cluebox .cp-clueqs li > .cp-n:first-child { display: inline-block; width: 2em; text-indent: 0; }
+    .cp-statements li > span, .cp-cluebox .cp-clueqs li > span { text-indent: 0; }
+    .cp-words, .cp-word, .cp-log, .cp-log a { display: block !important; }
+    .cp-word .ex { display: block; }
+    .cp-mistake dl { display: block !important; }
+    .cp-mistake dl > dt { float: left; clear: left; margin-right: 6pt; }
+    .cp-mistake dl > dd { margin-left: 0 !important; }
+  }
+}

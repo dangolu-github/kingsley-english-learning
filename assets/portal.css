@@ -1,0 +1,497 @@
+/* Learner site · home, class records, Extra Practice (practice by question type, full mocks), task player, mistake log, vocabulary. */
+:root { --ink: #1c2740; --muted: #5b6780; --paper: #f4f6fa; --surface: #fff; --line: #d6deeb; --accent: #2b5aa6; --accent-soft: #e6eefa; --warn: #8a611c; --warn-soft: #faf1dc; --good: #1f6b43; --good-soft: #e3f2e8; --bad: #9a2f2f; --bad-soft: #f8e7e5; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--paper); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; }
+a { color: var(--accent); }
+button, input, textarea, select { font: inherit; color: inherit; }
+
+/* Header */
+.cp-top { background: var(--ink); color: #fff; }
+.cp-top-inner { max-width: 980px; margin: 0 auto; padding: 10px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 18px; }
+.cp-brand { color: #fff; text-decoration: none; font-weight: 800; letter-spacing: .01em; }
+.cp-brand span { color: #b7cdf2; font-weight: 600; }
+.cp-nav { display: flex; flex-wrap: wrap; gap: 4px; }
+.cp-nav a { display: flex; flex-direction: column; padding: 6px 12px; border-radius: 10px; color: #dbe5f5; text-decoration: none; font-size: 14px; font-weight: 700; line-height: 1.25; }
+.cp-nav a small { font-size: 11px; font-weight: 600; opacity: .75; }
+.cp-nav a:hover { background: rgba(255,255,255,.1); }
+.cp-nav a[aria-current="page"] { background: #fff; color: var(--ink); }
+.cp-preview { margin: 0; padding: 6px 20px; background: var(--warn-soft); color: var(--warn); font-size: 13px; font-weight: 700; text-align: center; }
+
+/* Page */
+.cp-page { max-width: 980px; margin: 0 auto; padding: 28px 20px 90px; }
+.cp-back { margin: 0 0 18px; font-size: 14px; }
+.cp-back a { text-decoration: none; font-weight: 700; }
+.cp-kicker { margin: 0; color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.cp-page h1 { margin: 6px 0 8px; font-size: clamp(26px, 5vw, 38px); line-height: 1.14; letter-spacing: -.02em; }
+.cp-lead { margin: 0 0 8px; color: var(--muted); }
+.cp-section { margin: 30px 0 0; padding: 24px 0 0; border-top: 2px solid var(--line); }
+.cp-section > h2 { margin: 0 0 14px; font-size: 22px; }
+.cp-section > h2 small { color: var(--muted); font-size: 14px; font-weight: 600; margin-left: 6px; }
+.cp-sub { margin: 22px 0 10px; font-size: 16px; color: var(--muted); }
+.cp-paper { margin: 14px 0; border: 1px solid var(--line); border-radius: 12px; padding: 4px 14px 10px; background: var(--surface); }
+.cp-paper > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; list-style: none; }
+.cp-paper > summary::-webkit-details-marker { display: none; }
+.cp-paper > summary .cp-sub { margin: 10px 0; color: var(--ink); }
+.cp-paper > summary::after { content: '▸'; color: var(--muted); }
+.cp-paper[open] > summary::after { content: '▾'; }
+.cp-paper-count { min-width: 26px; padding: 1px 8px; border-radius: 999px; background: var(--line); color: var(--muted); font-size: 12px; text-align: center; }
+.cp-part { margin: 14px 0 8px; font-size: 14px; color: var(--muted); letter-spacing: .02em; }
+.cp-empty { margin: 0; padding: 16px 18px; border: 1px dashed var(--line); border-radius: 12px; background: var(--surface); color: var(--muted); }
+.cp-note { color: var(--muted); font-size: 14px; }
+.cp-loading { color: var(--muted); }
+
+/* Cards */
+/* Tasks are listed one per row (the teacher prefers a vertical list to a card grid). */
+.cp-cards { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.cp-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "kind go" "title go" "meta go"; column-gap: 14px; row-gap: 3px; padding: 12px 16px; border-bottom: 1px solid var(--line); min-width: 0; color: var(--ink); }
+.cp-card:last-child { border-bottom: 0; }
+.cp-card-link { text-decoration: none; }
+.cp-card-link:hover { background: var(--accent-soft); }
+.cp-card.is-locked { opacity: .65; }
+.cp-card-kind { grid-area: kind; color: var(--accent); font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.cp-card h3 { grid-area: title; margin: 0; font-size: 16px; line-height: 1.35; }
+.cp-meta { grid-area: meta; margin: 0; color: var(--muted); font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cp-go { grid-area: go; align-self: center; color: var(--accent); font-weight: 800; font-size: 14px; white-space: nowrap; }
+.cp-pill { display: inline-flex; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; background: #edf1f7; color: var(--muted); }
+.cp-pill.good { background: var(--good-soft); color: var(--good); }
+.cp-pill.warn { background: var(--warn-soft); color: var(--warn); }
+.cp-pill.bad { background: var(--bad-soft); color: var(--bad); }
+.cp-tiles { display: flex; flex-direction: column; margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.cp-tile { display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-areas: "num title" "num sub"; column-gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.cp-tile:last-child { border-bottom: 0; }
+.cp-tile:hover { background: var(--accent-soft); }
+.cp-tile strong { grid-area: title; font-size: 16px; }
+.cp-tile span { grid-area: sub; color: var(--muted); font-size: 13.5px; }
+.cp-tile b { grid-area: num; color: var(--accent); font-size: 24px; line-height: 1.1; text-align: center; }
+
+/* Buttons */
+.cp-btn { display: inline-flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 44px; padding: 7px 14px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 750; line-height: 1.2; text-decoration: none; cursor: pointer; }
+.cp-btn small { font-size: 12px; font-weight: 600; opacity: .85; margin-top: 2px; }
+.cp-btn.alt { background: #fff; color: var(--accent); }
+.cp-btn.quiet { border-color: var(--line); background: #fff; color: var(--ink); font-weight: 650; }
+.cp-btn.danger { border-color: var(--bad); background: var(--bad); }
+.cp-btn:hover { filter: brightness(1.06); }
+.cp-btn:disabled, .cp-btn[aria-disabled="true"] { opacity: .5; cursor: default; filter: none; }
+.cp-btn:focus-visible, .cp-log a:focus-visible, .cp-card-link:focus-visible, summary:focus-visible, .cp-chip:focus-visible { outline: 3px solid #d39a2b; outline-offset: 2px; }
+.cp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; align-items: center; }
+.cp-msg { min-height: 1.4em; margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.cp-msg.error { color: var(--bad); }
+.cp-msg.success { color: var(--good); font-weight: 700; }
+.cp-progress { height: 6px; margin-top: 8px; border-radius: 99px; background: #e2e8f2; overflow: hidden; }
+.cp-progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+
+/* Home: Class Logbook */
+.cp-log { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.cp-log a { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-decoration: none; }
+.cp-log a:hover { border-color: var(--accent); }
+.cp-log .num { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-weight: 850; font-size: 18px; }
+.cp-log strong { display: block; font-size: 17px; }
+.cp-log .date { display: block; color: var(--muted); font-size: 14px; }
+.cp-log .go { color: var(--accent); font-weight: 800; }
+
+/* Class page and rich text */
+.cp-fold { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-fold + .cp-fold { margin-top: 10px; }
+.cp-fold > summary { padding: 14px 18px; cursor: pointer; font-weight: 750; }
+.cp-fold > summary small { margin-right: 10px; color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.cp-fold-body { padding: 0 18px 18px; }
+.cp-rich h3 { margin: 22px 0 6px; font-size: 18px; }
+.cp-rich h4 { margin: 18px 0 6px; font-size: 16px; }
+.cp-rich p, .cp-rich ul, .cp-rich ol { margin: 8px 0; }
+.cp-rich > :first-child { margin-top: 0; }
+.cp-example { padding: 10px 14px; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; background: var(--accent-soft); font-family: Georgia, "Times New Roman", serif; }
+.cp-notes { margin: 8px 0 0; padding: 14px 16px; border-radius: 10px; background: #f7f9fc; border: 1px solid var(--line); font: 15px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cp-table { border-collapse: collapse; width: 100%; max-width: 560px; }
+.cp-table th, .cp-table td { padding: 7px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cp-table th { width: 44%; background: #f7f9fc; font-weight: 700; }
+.cp-memo { padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: #fbfcfe; }
+.cp-prompt { margin: 10px 0; padding: 14px 18px; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; background: var(--surface); font-family: Georgia, "Times New Roman", serif; font-size: 17px; }
+.cp-prompt p { margin: 8px 0; }
+
+/* Task player */
+.cp-taskbar { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin: 14px -20px 18px; padding: 10px 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(244,246,250,.96); font-size: 14px; color: var(--muted); }
+.cp-taskbar b { color: var(--ink); }
+.cp-taskbar .grow { flex: 1; }
+.cp-banner { margin: 0 0 16px; padding: 14px 18px; border-radius: 12px; background: var(--good-soft); color: var(--good); font-weight: 700; }
+.cp-banner.warn { background: var(--warn-soft); color: var(--warn); }
+.cp-banner.bad { background: var(--bad-soft); color: var(--bad); }
+.cp-banner small { display: block; font-weight: 500; color: var(--ink); margin-top: 4px; }
+.cp-block { margin: 16px 0; }
+.cp-block.cp-rich { padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-audio { padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-audio-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; font-weight: 750; }
+.cp-audio audio, .cp-speak audio { width: 100%; margin-top: 4px; }
+.cp-once { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.cp-once .cp-progress { flex: 1 1 200px; height: 10px; margin: 0; }
+.cp-pages > summary { cursor: pointer; font-weight: 750; padding: 12px 18px; }
+.cp-pages { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-pages-body { padding: 0 12px 12px; }
+.cp-pages-body img { display: block; width: 100%; max-width: 860px; margin: 0 auto 10px; border: 1px solid var(--line); border-radius: 6px; }
+
+.cp-q { margin: 12px 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-q legend, .cp-q .cp-prompt-line { padding: 0; margin: 0 0 10px; font-weight: 650; }
+fieldset.cp-q { min-width: 0; }
+.cp-n { display: inline-grid; place-items: center; min-width: 28px; height: 28px; margin-right: 8px; padding: 0 7px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 850; vertical-align: middle; }
+.cp-optional { margin-left: 6px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.cp-opt { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; margin: 6px 0; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.cp-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.cp-opt input { margin-top: 5px; }
+.cp-letter { font-weight: 800; color: var(--accent); }
+.cp-gap { display: flex; align-items: baseline; gap: 4px; }
+.cp-gap-line { flex: 1; line-height: 2.3; }
+.cp-gap input { width: min(100%, 22em); padding: 5px 9px; border: 0; border-bottom: 2px solid var(--accent); border-radius: 6px 6px 0 0; background: #f4f7fc; }
+.cp-q textarea, .cp-q input[type=text] { max-width: 100%; }
+.cp-q textarea { display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; line-height: 1.7; resize: vertical; background: #fff; }
+.cp-q textarea:focus, .cp-gap input:focus, .cp-field input:focus, .cp-field textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cp-q :disabled { background: #f1f3f7; color: var(--ink); opacity: 1; -webkit-text-fill-color: var(--ink); }
+.cp-count { margin: 6px 0 0; color: var(--muted); font-size: 13px; text-align: right; }
+.cp-count.ok { color: var(--good); font-weight: 700; }
+.cp-or { margin: 14px 0; text-align: center; color: var(--muted); font-size: 13px; font-weight: 800; letter-spacing: .1em; }
+
+/* Recorder and uploads */
+.cp-speak-panel { display: grid; gap: 10px; }
+.cp-speak-hidden { color: var(--muted); font-style: italic; font-weight: 500; }
+.cp-rec { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-radius: 12px; background: var(--bad-soft); }
+.cp-rec-dot { width: 14px; height: 14px; border-radius: 50%; background: #c62828; animation: cp-pulse 1s infinite; }
+@keyframes cp-pulse { 50% { opacity: .25; } }
+.cp-rec-time { font: 700 20px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.cp-level { flex: 1 1 120px; height: 8px; border-radius: 99px; background: rgba(0,0,0,.1); overflow: hidden; }
+.cp-level i { display: block; height: 100%; width: 0; background: #c62828; }
+.cp-prep { padding: 12px 14px; border-radius: 12px; background: var(--warn-soft); color: var(--warn); font-weight: 700; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.cp-saved { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; }
+.cp-filepick { position: relative; overflow: hidden; }
+.cp-filepick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.cp-drop { display: grid; place-items: center; gap: 4px; padding: 20px 14px; border: 2px dashed #b9c8de; border-radius: 12px; background: #fbfcfe; text-align: center; cursor: pointer; position: relative; }
+.cp-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.cp-drop strong { font-size: 15px; }
+.cp-drop span { color: var(--muted); font-size: 13px; }
+.cp-files { display: grid; gap: 4px; margin: 0 0 10px; padding: 0; list-style: none; font-size: 14px; }
+.cp-files li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 8px; background: #f1f4f9; }
+.cp-files li span:first-child { overflow-wrap: anywhere; }
+.cp-linkbtn { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: underline; }
+
+/* Feedback */
+.cp-verdict { margin: 12px 0 0; padding: 10px 14px; border-radius: 10px; background: #f4f7fc; font-size: 15px; }
+.cp-verdict.correct { background: var(--good-soft); }
+.cp-verdict.wrong, .cp-verdict.blank { background: var(--bad-soft); }
+.cp-verdict.partial { background: var(--warn-soft); }
+.cp-verdict.evaluated { background: #eef3fb; border-left: 4px solid var(--accent); }
+.cp-verdict p { margin: 4px 0; }
+.cp-verdict .label { font-weight: 800; }
+.cp-result { margin: 0 0 18px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-result h2 { margin: 0 0 6px; font-size: 20px; }
+.cp-score { font-size: 28px; font-weight: 850; color: var(--accent); }
+.cp-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.cp-submit { margin-top: 26px; padding-top: 20px; border-top: 2px solid var(--line); }
+
+/* Mistake log */
+.cp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.cp-chip { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 14px; font-weight: 700; cursor: pointer; }
+.cp-chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+.cp-mistake { margin: 12px 0; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--bad); border-radius: 12px; background: var(--surface); }
+.cp-mistake.is-cleared { border-left-color: var(--good); }
+.cp-mistake h3 { margin: 0 0 4px; font-size: 16px; }
+.cp-mistake .ctx { margin: 8px 0; }
+.cp-mistake dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 10px 0; }
+.cp-mistake dt { color: var(--muted); font-size: 13px; font-weight: 800; }
+.cp-mistake dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cp-mistake dd.bad { color: var(--bad); }
+.cp-mistake dd.good { color: var(--good); font-weight: 650; }
+.cp-retry { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin-top: 10px; }
+.cp-retry textarea, .cp-retry input { flex: 1 1 260px; min-height: 44px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; }
+
+/* Vocabulary */
+.cp-field { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
+.cp-field input, .cp-field textarea { display: block; width: 100%; margin-top: 4px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 400; color: var(--ink); background: #fff; }
+.cp-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-form .wide { grid-column: 1 / -1; }
+/* Your own practice (2026-10-26): the hand-in form's select and tick box; the hand-in list under its button. */
+.cp-field select { display: block; width: 100%; margin-top: 4px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 400; color: var(--ink); background: #fff; }
+.cp-own-check { display: flex; gap: 8px; align-items: center; align-self: end; min-height: 44px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.cp-own-check input { width: 18px; height: 18px; }
+.cp-own-list { margin-top: 14px; }
+.cp-search { width: 100%; max-width: 360px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.cp-wordtable { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14.5px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.cp-wordtable th, .cp-wordtable td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cp-wordtable th { background: var(--paper); font-size: 12.5px; color: var(--muted); }
+.cp-wordtable td.ex { color: var(--muted); font-family: Georgia, "Times New Roman", serif; }
+.cp-wordtable small { color: var(--muted); }
+.cp-wordtable .ck { width: 64px; text-align: center; white-space: nowrap; }
+.cp-wordtable .ck input, .cp-check input { width: 18px; height: 18px; vertical-align: middle; accent-color: var(--accent); }
+.cp-wordtable tr.is-known td:not(.ck) { color: var(--muted); }
+.cp-wordtable tr.is-known strong { text-decoration: line-through; text-decoration-color: rgba(0,0,0,.25); }
+.cp-check { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+@media (max-width: 640px) { .cp-wordtable thead { display: none; } .cp-wordtable tr { display: block; padding: 8px 10px; border-bottom: 1px solid var(--line); } .cp-wordtable td { display: block; padding: 2px 0; border: 0; } .cp-wordtable td.ck { float: right; width: auto; margin-left: 10px; } }
+.cp-words { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cp-word { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.cp-word.is-known { background: #f6f8fb; }
+.cp-word.is-known .w { color: var(--muted); }
+.cp-word .w { font-size: 17px; font-weight: 800; }
+.cp-word .pos { color: var(--muted); font-size: 13px; font-style: italic; margin: 0 6px; }
+.cp-word .ex { grid-column: 1 / -1; color: var(--muted); font-family: Georgia, "Times New Roman", serif; }
+.cp-word .tools { display: flex; gap: 12px; align-items: center; font-size: 13px; }
+.cp-word label { display: inline-flex; gap: 5px; align-items: center; font-weight: 700; color: var(--muted); cursor: pointer; }
+
+@media (max-width: 600px) {
+  .cp-page { padding: 20px 16px 80px; }
+  .cp-taskbar { margin: 12px -16px 16px; padding: 8px 16px; }
+  .cp-log a { grid-template-columns: auto minmax(0, 1fr); }
+  .cp-log .go { display: none; }
+  .cp-top-inner { padding: 8px 12px; }
+  .cp-nav { flex-wrap: nowrap; width: 100%; overflow-x: auto; gap: 2px; }
+  .cp-nav a { padding: 6px 9px; font-size: 13px; white-space: nowrap; }
+  .cp-nav a small { display: none; }
+  .cp-actions .cp-btn { flex: 1 1 140px; }
+  .cp-q, .cp-block.cp-rich { padding: 14px; }
+}
+@media print {
+  .cp-top, .cp-preview, .cp-taskbar, .cp-actions, .cp-submit, .cp-back, .cp-audio, .cp-speak-panel, .cp-drop, .cp-chips, .cp-retry, .no-print { display: none !important; }
+  body { background: #fff; }
+  .cp-q, .cp-block.cp-rich, .cp-fold { border-color: #999; break-inside: avoid; }
+  details.cp-fold > .cp-fold-body { display: block; }
+}
+
+/* Questions as web pages (2026-10-16): typed sheets, folded documents, figures */
+.cp-block.cp-sheet { padding: 2px 4px; border: 0; background: none; }
+.cp-block.cp-sheet h3 { margin-top: 6px; }
+.cp-given { text-decoration: underline; font-style: italic; }
+.cp-paper-mode [data-blocks] .cp-file { display: none; }
+.cp-paper-reviewed > textarea, .cp-paper-reviewed > input { display: none; }
+.cp-paper-reviewed .cp-gap-line > input { display: none; }
+.cp-error-span, .cp-del { color: #6b6b6b; text-decoration: line-through; text-decoration-color: #b42318; text-decoration-thickness: 1.5px; }
+.cp-fix-span, .cp-ins { color: #b42318; text-decoration: none; font-weight: 600; }
+.cp-marked { margin: 6px 0; }
+.cp-file-preview { width: min(92vw, 1000px); max-height: 90vh; border: 1px solid var(--line); border-radius: 12px; }
+.cp-file-preview img { display: block; max-width: 100%; height: auto; }
+.cp-file-preview iframe { display: block; width: 100%; height: 70vh; border: 0; }
+.cp-file-preview::backdrop { background: #0008; }
+.cp-doc { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.cp-doc > summary { cursor: pointer; font-weight: 750; padding: 12px 18px; }
+.cp-doc-body { padding: 0 20px 18px; }
+.cp-rich table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+.cp-rich th, .cp-rich td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; overflow-wrap: break-word; }
+/* Phones only: a wide table may break inside a word rather than push the page sideways. */
+@media (max-width: 640px) { .cp-rich th, .cp-rich td { overflow-wrap: anywhere; } }
+.cp-figure .cp-pages-body img { max-width: 620px; }
+/* Reading passages keep the paper's printed lines: one <li> per printed line, data-n where a number is printed */
+.cp-lines { list-style: none; margin: 8px 0 12px; padding: 0 0 0 3.2em; }
+.cp-lines li { position: relative; line-height: 1.75; }
+.cp-lines li.cp-pstart { margin-top: 0.7em; }
+.cp-lines li[data-n]::before { content: attr(data-n); position: absolute; left: -3.2em; width: 2.4em; text-align: right; color: var(--muted); font-size: 0.85em; font-variant-numeric: tabular-nums; }
+.cp-doc-body .cp-src { color: var(--muted); font-size: 13px; }
+.cp-rich figure { margin: 10px 0; }
+@media (max-width: 600px) { .cp-lines { padding-left: 2.4em; } .cp-lines li[data-n]::before { left: -2.4em; width: 1.8em; } }
+
+/* Toggles (every section folds; the open state is remembered per browser) */
+details.cp-section { margin: 22px 0 0; padding: 0; border: 0; border-top: 2px solid var(--line); background: none; border-radius: 0; }
+details.cp-section > summary { display: flex; align-items: center; gap: 10px; padding: 16px 0 8px; cursor: pointer; list-style: none; }
+details.cp-section > summary::-webkit-details-marker, .cp-sec > summary::-webkit-details-marker, .cp-group > summary::-webkit-details-marker { display: none; }
+details.cp-section > summary::before, .cp-sec > summary::before, .cp-group > summary::before { content: '▸'; color: var(--accent); transition: transform .15s; }
+details.cp-section[open] > summary::before, .cp-sec[open] > summary::before, .cp-group[open] > summary::before { transform: rotate(90deg); }
+details.cp-section > summary h2 { margin: 0; font-size: 22px; }
+details.cp-section > summary h2 small { color: var(--muted); font-size: 14px; font-weight: 600; margin-left: 6px; }
+details.cp-section[open] > summary { margin-bottom: 8px; }
+.cp-foldbar { display: flex; justify-content: flex-end; gap: 16px; margin: 18px 0 -8px; font-size: 14px; }
+.cp-searchrow { margin: 20px 0 6px; }
+.cp-sec { margin: 14px 0; border: 1px solid var(--line); border-radius: 14px; background: #fbfcfe; }
+.cp-sec > summary { display: flex; align-items: center; gap: 10px; padding: 14px 18px; cursor: pointer; list-style: none; }
+.cp-sec > summary h2 { margin: 0; font-size: 19px; }
+.cp-sec-body { padding: 0 16px 16px; }
+.cp-group { margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.cp-group > summary { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; list-style: none; font-weight: 750; }
+.cp-group-body { padding: 0 14px 14px; }
+.cp-group-body > .cp-q { border-color: #e3e9f2; }
+.cp-figure-box { margin: 8px 0 4px; }
+.cp-figure-box .cp-pages-body { padding: 0; }
+.cp-figure-box img { display: block; width: 100%; max-width: 760px; margin: 0 0 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.cp-text-title { margin: 6px 0 2px; font-size: 20px; }
+.cp-text-sub { margin: 0 0 8px; color: var(--muted); font-style: italic; }
+.cp-text-label { display: inline-grid; place-items: center; min-width: 30px; height: 30px; margin-right: 8px; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 850; }
+.cp-statements { margin: 8px 0; padding: 0; list-style: none; }
+.cp-statements li { display: grid; grid-template-columns: 2em minmax(0, 1fr); padding: 5px 0; border-bottom: 1px solid var(--line); }
+.cp-statements b { color: var(--accent); }
+.cp-comments { display: grid; gap: 8px; margin: 10px 0; padding: 0; list-style: none; }
+.cp-comments li { padding: 10px 14px; border-radius: 14px; background: var(--accent-soft); font-style: italic; }
+.cp-notes-heading { margin: 4px 0 2px; font-weight: 750; }
+.cp-addword { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 14px; }
+.cp-addword label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
+.cp-addword label:nth-child(4), .cp-addword .cp-actions, .cp-addword .cp-msg { grid-column: 1 / -1; }
+.cp-addword input, .cp-addword textarea { display: block; width: 100%; margin-top: 4px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 400; color: var(--ink); background: #fff; }
+.cp-tablewrap { overflow-x: auto; }
+@media print { .cp-foldbar, .cp-searchrow { display: none !important; } .cp-sec, .cp-group { break-inside: auto; } }
+
+/* Reading tasks (task.js, 2026-11-04): the passages on the left, the questions on the right, each pane
+   scrolling on its own; the page itself does not scroll. Narrow windows stack the panes, passages on top.
+   Both panes size themselves from the window that is open now, so a resize or a zoom needs no reload, and
+   every pane sizes its own content: a table that needs more width scrolls inside its own wrapper and never
+   widens the pane or the page. Screen only — printing keeps one column, in the paper's order (print.js). */
+@media screen {
+  body.cp-split-page { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+  body.cp-split-page > * { flex: none; }
+  body.cp-split-page > .cp-page { flex: 1 1 auto; min-height: 0; min-width: 0; width: 100%; max-width: none; display: flex; flex-direction: column; padding: 10px clamp(10px, 1.7vw, 24px) 14px; }
+  .cp-split-page .cp-page > .cp-back, .cp-split-page .cp-page > .cp-kicker { margin: 0; }
+  .cp-split-page .cp-page > h1 { margin: 2px 0 6px; font-size: clamp(19px, 2.2vw, 26px); }
+  .cp-split-page .cp-taskbar { position: static; margin: 0 0 10px; padding: 6px 14px; border: 1px solid var(--line); border-radius: 10px; }
+  .cp-split { flex: 1 1 auto; min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: clamp(10px, 1.4vw, 20px); }
+  .cp-split-pane { min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+  .cp-split-pane .cp-rich table { display: block; width: 100%; max-width: 100%; overflow-x: auto; }
+  .cp-split-texts { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .cp-split-text-item + .cp-split-text-item { border-top: 1px solid var(--line); }
+  /* A heading, not a toggle: the text the questions are about cannot be closed (reading-split-pane rule 3). */
+  .cp-split-text-head { position: sticky; top: 0; z-index: 1; margin: 0; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 16px; font-weight: 750; }
+  .cp-split-text-head small { display: block; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .cp-split-text-body { margin: 0; padding: 4px 16px 16px; border: 0; border-radius: 0; background: none; }
+  .cp-split-questions { padding: 0 6px 24px 2px; }
+  .cp-split-questions > [data-top]:empty + .cp-foldbar, .cp-split-questions > .cp-foldbar { margin-top: 0; }
+  .cp-split-questions > [data-blocks] > :first-child { margin-top: 0; }
+  .cp-split-page .cp-submit { margin-top: 18px; padding-top: 14px; }
+}
+@media screen and (max-width: 767px) {
+  body.cp-split-page > .cp-page { padding: 8px 10px 10px; }
+  .cp-split-page .cp-taskbar { margin-bottom: 8px; padding: 4px 10px; }
+  .cp-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 45fr) minmax(0, 55fr); gap: 10px; }
+  .cp-split-text-head { padding: 8px 14px; }
+  .cp-split-text-body { padding: 4px 14px 14px; }
+  /* A phone's height goes to the two panes, not to the rows above them: the site header keeps one row with
+     its nav scrolling inside it, the kicker keeps one line, and the task bar scrolls sideways in its own row
+     instead of wrapping into four. Nothing is dropped - the passage, the questions, the time, the progress
+     and every action are all still there - and a wide window keeps the fuller chrome. */
+  .cp-split-page .cp-top-inner { flex-wrap: nowrap; gap: 8px; padding: 6px 10px; }
+  .cp-split-page .cp-brand { flex: none; }
+  .cp-split-page .cp-nav { min-width: 0; flex-wrap: nowrap; overflow-x: auto; }
+  .cp-split-page .cp-nav a { flex: none; padding: 4px 8px; }
+  .cp-split-page .cp-nav a small { display: none; }
+  /* These rows scroll or clip their own content, so they keep their own row height (a flex item that can
+     scroll may otherwise be squeezed to nothing by a short window, which would hide what is in it). */
+  .cp-split-page .cp-page > .cp-kicker { flex: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cp-split-page .cp-page > h1 { font-size: 17px; margin: 2px 0 4px; }
+  .cp-split-page .cp-taskbar { flex: none; flex-wrap: nowrap; overflow-x: auto; gap: 4px 10px; font-size: 13px; }
+  .cp-split-page .cp-taskbar > * { flex: none; }
+  .cp-split-page .cp-taskbar .grow { flex: 1 0 0; }
+}
+/* A short window (a landscape phone, a split screen, 200% zoom) keeps the panes usable: the chrome above
+   them gives up its spare height first. */
+@media screen and (max-height: 500px) {
+  .cp-split-page .cp-top-inner { padding: 4px 12px; flex-wrap: nowrap; gap: 8px; }
+  .cp-split-page .cp-brand { flex: none; }
+  .cp-split-page .cp-nav { min-width: 0; flex-wrap: nowrap; overflow-x: auto; }
+  .cp-split-page .cp-nav a { flex: none; padding: 4px 8px; }
+  .cp-split-page .cp-preview, .cp-split-page .cp-page > .cp-kicker, .cp-split-page .cp-page > .cp-back { display: none; }
+  body.cp-split-page > .cp-page { padding-top: 4px; padding-bottom: 6px; }
+  /* A short window gives the title one line too: the panes need the height more than a wrapped heading does. */
+  .cp-split-page .cp-page > h1 { flex: none; font-size: 18px; margin: 2px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cp-split-page .cp-taskbar { margin-bottom: 6px; padding: 4px 8px; }
+}
+.cp-inline .cp-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-inline .cp-opt { margin: 0; min-width: 64px; justify-content: center; }
+.cp-inline .cp-opt span:not(.cp-letter) { font-weight: 600; }
+.cp-rubric { margin: 6px 0 12px; font-weight: 600; }
+.cp-context { margin: 18px 0 4px; font-style: italic; color: var(--muted); }
+.cp-script { margin: 12px 0; }
+.cp-transcript h3 { margin: 18px 0 6px; font-size: 16px; }
+.cp-transcript p { margin: 6px 0; }
+/* Note-making answer lines sit under their heading like a printed notes page. */
+.cp-group-body > .cp-q.cp-gap { margin: 0; padding: 4px 18px 4px 34px; border: 0; border-radius: 0; background: none; }
+.cp-group-body > .cp-q.cp-gap input { width: min(100%, 34em); }
+.cp-group-body > .cp-block.cp-rich:has(.cp-notes-heading) { margin: 16px 0 4px; padding: 0 4px; border: 0; background: none; }
+.cp-group-body > .cp-block.cp-rich:has(.cp-rubric):not(:has(.cp-notes-heading)) { padding: 6px 4px 0; border: 0; background: none; }
+
+/* Class handouts: annotated page images and the clue finder */
+.cp-res-pages img { display: block; width: 100%; max-width: 900px; margin: 0 auto 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.cp-cluebox .cp-cluebar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; background: var(--surface); border-bottom: 1px solid var(--line); }
+.cp-cluebox .cp-cluebar button { padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.cp-cluebox .cp-cluebar button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+.cp-cluelegend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 4px; font-size: 13px; color: var(--muted); }
+.cp-cluelegend span::before { content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: -1px; border-radius: 3px; }
+.cp-cluelegend .k-answer::before { background: #ffe08a; }
+.cp-cluelegend .k-key::before { background: #cfe3ff; }
+.cp-cluelegend .k-trap::before { background: #f6c9c4; }
+.cp-cluetext p { margin: 10px 0; font-family: Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.75; }
+.cp-clue { border-radius: 3px; transition: background .2s; }
+.cp-clue sup { display: none; margin-left: 2px; font: 800 11px/1 -apple-system, sans-serif; color: var(--accent); }
+.cp-cluebox .cp-clueqs { margin: 14px 0 0; padding: 0; list-style: none; }
+.cp-cluebox .cp-clueqs li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.cp-cluebox .cp-clueqs details { grid-column: 2; }
+.cp-cluebox .cp-clueqs summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: 14px; }
+
+.cp-cluebox.show-q1 .cp-clue[data-q~="1"].answer { background: #ffe08a; }
+.cp-cluebox.show-q1 .cp-clue[data-q~="1"].key { background: #cfe3ff; }
+.cp-cluebox.show-q1 .cp-clue[data-q~="1"].trap { background: #f6c9c4; text-decoration: line-through; text-decoration-color: rgba(154,47,47,.6); }
+.cp-cluebox.show-q1 .cp-clue[data-q~="1"] sup.q1 { display: inline; }
+.cp-cluebox.show-q2 .cp-clue[data-q~="2"].answer { background: #ffe08a; }
+.cp-cluebox.show-q2 .cp-clue[data-q~="2"].key { background: #cfe3ff; }
+.cp-cluebox.show-q2 .cp-clue[data-q~="2"].trap { background: #f6c9c4; text-decoration: line-through; text-decoration-color: rgba(154,47,47,.6); }
+.cp-cluebox.show-q2 .cp-clue[data-q~="2"] sup.q2 { display: inline; }
+.cp-cluebox.show-q3 .cp-clue[data-q~="3"].answer { background: #ffe08a; }
+.cp-cluebox.show-q3 .cp-clue[data-q~="3"].key { background: #cfe3ff; }
+.cp-cluebox.show-q3 .cp-clue[data-q~="3"].trap { background: #f6c9c4; text-decoration: line-through; text-decoration-color: rgba(154,47,47,.6); }
+.cp-cluebox.show-q3 .cp-clue[data-q~="3"] sup.q3 { display: inline; }
+.cp-cluebox.show-q4 .cp-clue[data-q~="4"].answer { background: #ffe08a; }
+.cp-cluebox.show-q4 .cp-clue[data-q~="4"].key { background: #cfe3ff; }
+.cp-cluebox.show-q4 .cp-clue[data-q~="4"].trap { background: #f6c9c4; text-decoration: line-through; text-decoration-color: rgba(154,47,47,.6); }
+.cp-cluebox.show-q4 .cp-clue[data-q~="4"] sup.q4 { display: inline; }
+.cp-cluebox.show-q5 .cp-clue[data-q~="5"].answer { background: #ffe08a; }
+.cp-cluebox.show-q5 .cp-clue[data-q~="5"].key { background: #cfe3ff; }
+.cp-cluebox.show-q5 .cp-clue[data-q~="5"].trap { background: #f6c9c4; text-decoration: line-through; text-decoration-color: rgba(154,47,47,.6); }
+.cp-cluebox.show-q5 .cp-clue[data-q~="5"] sup.q5 { display: inline; }
+.cp-cluebox.show-q6 .cp-clue[data-q~="6"].answer { background: #ffe08a; }
+.cp-cluebox.show-q6 .cp-clue[data-q~="6"].key { background: #cfe3ff; }
+.cp-cluebox.show-q6 .cp-clue[data-q~="6"].trap { background: #f6c9c4; text-decoration: line-through; text-decoration-color: rgba(154,47,47,.6); }
+.cp-cluebox.show-q6 .cp-clue[data-q~="6"] sup.q6 { display: inline; }
+@media print { .cp-cluebar { display: none !important; } }
+
+/* Notion-style class page */
+.cp-notion { font-size: 16px; }
+.cp-ntoggle { margin: 6px 0; }
+.cp-ntoggle > summary { padding: 6px 2px; font-size: 19px; font-weight: 750; cursor: pointer; }
+.cp-ntoggle.sub > summary { font-size: 16.5px; }
+.cp-ntoggle-body { padding: 2px 0 8px 22px; }
+.cp-nquote { margin: 8px 0; padding: 2px 0 2px 16px; border-left: 3px solid var(--ink); }
+.cp-nquote p { margin: 8px 0; }
+.cp-hl { border-radius: 3px; padding: 0 2px; }
+.cp-hl.yellow { background: #fbf3db; }
+.cp-hl.red { background: #fdebec; }
+.cp-hl.green { background: #edf3ec; }
+.cp-ntable { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 15px; }
+.cp-ntable th, .cp-ntable td { padding: 7px 10px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cp-ntable th { background: #f7f7f5; font-weight: 700; }
+.cp-ntable p { margin: 6px 0 2px; }
+.cp-cell-list { margin: 0; padding-left: 18px; }
+.cp-table-wide { border-collapse: collapse; width: 100%; font-size: 15px; }
+.cp-table-wide th, .cp-table-wide td { padding: 7px 10px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cp-table-wide thead th { background: #f7f9fc; font-size: 13px; color: var(--muted); }
+
+/* Print-first (2026-10-24): two ways to hand in — on this page, or on paper as photos / a PDF. */
+.cp-handin-hint { margin: 0 0 14px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 14px; }
+.cp-handin { margin: 18px 0 0; }
+.cp-handin > summary { color: var(--accent); }
+.cp-method { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 4px 0 6px; font-weight: 700; }
+.cp-method label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+.cp-method input { width: 18px; height: 18px; }
+.cp-handin .cp-file { padding: 0; border: 0; background: none; }
+.cp-paper-receipt { margin: -6px 0 16px; padding: 10px 14px; border-radius: 10px; background: #f1f4f9; font-size: 14px; overflow-wrap: anywhere; }
+.cp-original { margin: 4px 0; }
+.cp-printbar { margin: 4px 0 8px; }
+.cp-files li > span:first-child { flex: 1 1 auto; }
+.cp-files li { justify-content: flex-start; flex-wrap: wrap; }
+
+/* Archived homework on a class page: a closed fold under the current homework (2026-10-26). */
+.cp-archive { margin-top: 14px; }
+.cp-archive > summary h3 { display: inline; margin: 0; font-size: 15px; }
+.cp-archive > .cp-cards { padding: 0 14px 14px; }
+
+/* Videos for speaking homework and recorded answers (Kingsley, 2026-11-08). */
+.cp-video { display: block; width: 100%; max-width: 760px; height: auto; border-radius: 8px; background: #000; }
+.cp-speak .cp-actions { margin-top: .5rem; }
+.cp-speak-saved { margin: .4rem 0; }
+.cp-rec-clock { align-self: center; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+/* Vocabulary Self-test (2026-11-12): meanings blurred where they stand; a tap shows one; nothing moves. Print shows all. */
+.cp-modes { display: inline-flex; gap: 6px; margin-right: 6px; }
+.cp-modes .cp-btn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.cp-vocab-test .cp-word { cursor: pointer; }
+.cp-vocab-test .cp-word .mean { filter: blur(5px); user-select: none; transition: filter .15s; }
+.cp-vocab-test .cp-word.is-shown .mean { filter: none; user-select: text; }
+@media print { .cp-vocab-test .cp-word .mean { filter: none !important; transition: none !important; } }
